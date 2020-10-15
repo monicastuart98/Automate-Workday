@@ -33,7 +33,6 @@ def util_next_button():
 def util_handle_dropdown(parent, item_select):
     parent_div = DriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, parent)))
     if parent_div:
-        print('entereedd')
         parent_div.location_once_scrolled_into_view
         parent_div.click()
     time.sleep(2)
@@ -45,12 +44,9 @@ def switch_tab(prevElem, *text):
     prevElem.send_keys(Keys.TAB)
     time.sleep(1)
     element = driver.switch_to.active_element
-    time.sleep(4)
     if text:
-        print('SWITCH TAB: ', text)
         element.send_keys(text)
     else:
-        print('SWITCH TAB not text')
         element.send_keys(Keys.TAB)
         element = driver.switch_to.active_element
 
@@ -69,7 +65,6 @@ def my_information():
 
     # anchor
     util_handle_dropdown(paths['dropdown_countries'], paths['select_country'])
-    time.sleep(10)
     element = driver.switch_to.active_element
     prev_elem = switch_tab(element)
 
@@ -79,7 +74,6 @@ def my_information():
         prev_elem = curr_elem
 
     util_handle_dropdown(paths["dropdown_sources"], paths["select_source"])
-    time.sleep(5)
     util_next_button()
 
 
