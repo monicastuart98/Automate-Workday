@@ -5,6 +5,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait as DriverWait
 import pandas as pd
+import csv
+import datetime
 
 
 class AutomateWorkday:
@@ -17,7 +19,7 @@ class AutomateWorkday:
         self.work_exp = processing('Sheet1')
         self.education = processing('Sheet2')
         self.personal = processing('Sheet3')
-        self.paths = {'file_loc': '',
+        self.paths = {'file_loc': '/Users/monicastuart/PycharmProjects/workday/automate/UploadFiles/Resume.pdf',
                       'upload': '//input[@type="file"]',
                       'success_label': '//label[contains(.,"Successfully Uploaded")]',
                       'dropdown_countries': "//div[contains(@data-metadata-id,'dropDownSelectList.countries')]",
@@ -27,17 +29,23 @@ class AutomateWorkday:
                       "button_remove": "//button[contains(.,'Remove')]",
                       "button_next": '//button[@title="Next"]',
                       "button_add": "//button[contains(.,'Add')]"}
+
         self.url = input('Application URL: ')
-        self.driver = webdriver.Chrome(executable_path='../drivers/chromedriver')
-        self.driver.implicitly_wait(10)
+        self.driver = None
         print("Calling automate")
+
         self.automate(self.url)
 
     def automate(self, url):
-        self.driver.get(url)
-        self.resume()
-        self.my_information()
-        self.work_experience()
+        try:
+            self.driver = webdriver.Chrome(executable_path='../drivers/chromedriver')
+            self.driver.implicitly_wait(10)
+            self.driver.get(url)
+            self.resume()
+            self.my_information()
+            self.work_experience()
+        finally:
+            self.log_application()
 
     def util_next_button(self):
         curr_url = self.driver.current_url
@@ -77,7 +85,6 @@ class AutomateWorkday:
         loc_info = {0: self.personal['Address'], 1: self.personal['City'], 2: self.personal['Province'],
                     3: self.personal['PostalCode']}
 
-        # anchor
         self.util_handle_dropdown(self.paths['dropdown_countries'], self.paths['select_country'])
         element = self.driver.switch_to.active_element
         prev_elem = self.switch_tab(element)
@@ -96,11 +103,17 @@ class AutomateWorkday:
         for item in clean:
             if item.text == 'Remove':
                 item.location_once_scrolled_into_view
-                time.sleep(2)
                 item.click()
-                time.sleep(10)
+                time.sleep(1)
 
-        add_item = self.driver.find_elements(By.XPATH, self.paths["button_add"])
+        # add_item = self.driver.find_elements(By.XPATH, self.paths["button_add"])
+
+    def log_application(self):
+        position = self.driver.title
+        entry = (datetime.date.today(), position, self.url)
+        with open('./application_log.csv', 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(entry)
 
 
 #### SCRIPT
